@@ -1,4 +1,5 @@
 mod two_sum;
+mod max_num_moves;
 
 use crate::two_sum::Solution;
 
