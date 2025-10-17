@@ -1,6 +1,6 @@
-mod two_sum;
 mod max_num_moves;
-
+mod num_ways_arrive_dest;
+mod two_sum;
 use crate::two_sum::Solution;
 
 fn main() {
