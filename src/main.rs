@@ -1,16 +1,21 @@
-mod max_num_moves;
-mod num_ways_arrive_dest;
-mod two_sum;
-use crate::two_sum::Solution;
+use std::thread;
+use std::time::Duration;
 
 fn main() {
-    let tests: Vec<(Vec<i32>, i32, Vec<i32>)> = vec![
-        (vec![2, 7, 11, 15], 9, vec![2, 7]),
-        (vec![3, 2, 4], 6, vec![1, 2]),
-        (vec![3, 3], 6, vec![0, 1]),
-    ];
-    for test in tests {
-        let res = Solution::two_sum(vec![2, 7, 11, 15], 9);
-        assert_eq!(res, test.2, "Test failed: {:?}", test);
+    // calling a lib function
+    rust_projects::two_sum::Solution::two_sum(vec![], 3);
+
+    let join_handle = thread::spawn(|| {
+        for i in 0..10 {
+            println!("thread echo {}", i);
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+
+    for i in 0..10 {
+        println!("main echo {}", i);
+        thread::sleep(Duration::from_millis(1));
     }
+
+    join_handle.join().unwrap();
 }

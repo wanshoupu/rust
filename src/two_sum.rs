@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+pub fn bar() {}
+
 pub struct Solution {}
 impl Solution {
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
@@ -27,6 +29,7 @@ mod tests {
         let ans: HashSet<_> = expected.into_iter().collect();
         let result: HashSet<_> = Solution::two_sum(nums, target).into_iter().collect();
         assert_eq!(result, ans);
+        println!("done");
     }
     #[test]
     fn test_case1() {

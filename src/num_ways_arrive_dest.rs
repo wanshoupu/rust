@@ -65,6 +65,7 @@ mod tests {
     fn run_assert(n: i32, nums: Vec<Vec<i32>>, expected: i32) {
         let result = Solution::count_paths(n, nums);
         assert_eq!(result, expected);
+        println!("done");
     }
     #[test]
     fn test_case0() {

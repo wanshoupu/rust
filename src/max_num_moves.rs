@@ -45,6 +45,7 @@ mod tests {
     fn run_assert(nums: Vec<Vec<i32>>, expected: i32) {
         let result = Solution::max_moves(nums);
         assert_eq!(result, expected);
+        println!("done");
     }
     #[test]
     fn test_case1() {
