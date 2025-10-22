@@ -17,5 +17,11 @@ fn main() {
         thread::sleep(Duration::from_millis(1));
     }
 
-    join_handle.join().unwrap();
+    // match join_handle.join() {
+    //     Ok(_) => println!("Thread finished successfully"),
+    //     Err(_) => eprintln!("Thread panicked!"),
+    // }
+    if let Err(e) = join_handle.join() {
+        println!("join error {:?}", e);
+    }
 }
