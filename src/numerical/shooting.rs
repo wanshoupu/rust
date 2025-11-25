@@ -58,6 +58,9 @@ impl Wheel {
             eq_omega,
         }
     }
+    pub(crate) fn kin(&self, omega: f64) -> f64 {
+        omega.powi(2) * self.inertia() / 2.0
+    }
 }
 
 impl Rot for Wheel {
@@ -137,15 +140,28 @@ impl Shooter {
     /// unit of dist and height are inches
     /// return value is in unit of milliseconds
     fn interval(&self, dist: f64, height: f64) -> f64 {
-        let energy = self.ball.min_energy(dist, height);
-        // assuming non-slipping motion along the track
-        let omega = self.ball.min_velocity(dist, height) / self.ball.radius;
-        // assume contact time is ignorably short
-        // to transfer energy to ball, it takes factor as much from flywheel
-        let factor = self.wheel.eq_omega / omega;
+        let denergy = self.dkin(dist, height);
+        denergy / self.wheel.motor_power
+    }
 
-        // the time it takes to replenish the lost energy
-        factor * energy / self.wheel.motor_power
+    /// change in kinetic energy of the flywheel after shooting a ball to goal at (dist, height).
+    fn dkin(&self, dist: f64, height: f64) -> f64 {
+        // assuming non-slipping motion along the track
+        let v = self.ball.min_velocity(dist, height);
+
+        // loss of angular momentum on the flywheel
+        // model: after the impact,
+        // the angular moment of flywheel = I1 ω1 - R1 F t
+        // the angular moment of the ball = I2 ω2 - 2R2 F t
+        // the anchor for the ball is at one of the tangent point, so use the parallel
+        // axis rule of moment of inertia, the effective inertia of the ball is 5/3 m2 R2^2
+        // canceling the Ft part, we get change of angular momentum
+        // ΔL = R1 I2 v / 2 / R2^2
+        // = 5/6 m2 R1 v
+        let dl = 5.0 / 6.0 * self.wheel.radius * self.ball.weight * v;
+        let final_omega = self.wheel.eq_omega - dl / self.wheel.inertia();
+        let lost_energy = self.wheel.kin(self.wheel.eq_omega) - self.wheel.kin(final_omega);
+        lost_energy
     }
 }
 
@@ -196,10 +212,18 @@ mod tests {
     }
 
     #[test]
+    fn test_dkin() {
+        let conf = ShooterConfig::default();
+        let shooter = Shooter::new(conf);
+        let lost_energy = shooter.dkin(10f64, 10f64);
+        assert_prox!(lost_energy, 200f64, 1e-2);
+    }
+
+    #[test]
     fn test_interval() {
         let conf = ShooterConfig::default();
         let shooter = Shooter::new(conf);
         let intv = shooter.interval(10f64, 10f64);
-        assert_prox!(intv, 200f64, 1e-2);
+        assert_prox!(intv, 2f64, 1e-2);
     }
 }
