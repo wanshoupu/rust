@@ -199,10 +199,10 @@ impl Shooter {
         }
         let init_omega = rpm2omega(init_rpm);
         let target_omega = rpm2omega(target_rpm);
-        let original = self.wheel.kin(init_omega);
+        let original_energy = self.wheel.kin(init_omega);
         let target_energy = self.wheel.kin(target_omega);
-        let denergy = target_energy - original;
-        let sec = denergy / self.motor_power;
+        let work = target_energy - original_energy;
+        let sec = work / self.motor_power;
         Duration::from_secs_f64(sec)
     }
 
@@ -241,10 +241,11 @@ impl Shooter {
         let dur1 = self.charge(end_rpm, rpm);
 
         println!(
-            "{rpm} -shoot-> {end_rpm} -charge-> {rpm} -shoot-> {end_rpm} -charge-> {rpm} -shoot-> {end_rpm}"
+            "{} -shoot-> {} -charge-> {} -shoot-> {} -charge-> {} -shoot-> {}",
+            rpm, end_rpm, rpm, end_rpm, rpm, end_rpm
         );
 
-        dur1 + dur1
+        dur1 + dur1 + Duration::from_millis(100)
     }
 
     fn shoot_cascading(&self, dist: f64) -> Duration {
@@ -261,10 +262,11 @@ impl Shooter {
         let dur2 = self.charge(end_rpm2, rpm3);
 
         println!(
-            "{rpm1} -shoot-> {end_rpm1} -charge-> {rpm2} -shoot-> {end_rpm2} -charge-> {rpm3} -shoot-> {end_rpm3}"
+            "{} -shoot-> {} -charge-> {} -shoot-> {} -charge-> {} -shoot-> {}",
+            rpm1, end_rpm1, rpm2, end_rpm2, rpm3, end_rpm3
         );
 
-        dur1 + dur2
+        dur1 + dur2 + Duration::from_millis(100)
     }
 }
 
@@ -320,7 +322,7 @@ mod tests {
 
         let shooter = Shooter::new(conf);
         let duration = shooter.shoot_cascading(1f64);
-        assert_prox!(duration.as_millis() as f64, 66f64, 1e-2);
+        assert_prox!(duration.as_millis() as f64, 166f64, 1e-2);
     }
     #[test]
 
@@ -329,7 +331,7 @@ mod tests {
 
         let shooter = Shooter::new(conf);
         let duration = shooter.shoot_evenly(1f64);
-        assert_prox!(duration.as_millis() as f64, 78f64, 1e-2);
+        assert_prox!(duration.as_millis() as f64, 178f64, 1e-2);
     }
 
     #[test]
